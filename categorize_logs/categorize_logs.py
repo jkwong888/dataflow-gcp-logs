@@ -50,10 +50,20 @@ class ParseLogEntry(beam.DoFn):
       row = json.loads(elem)
 
       # categorize by the kubernetes deployment that generated the log
-      log_labels = row['labels']
-      log_cat = log_labels['k8s-pod/app_kubernetes_io/instance']
+      try:
+        log_labels = row['labels']
+        if log_labels is None:
+          yield pvalue.TaggedOutput('uncategorized', row)
 
-      yield (log_cat, row)
+        log_cat = log_labels['k8s-pod/app_kubernetes_io/instance']
+
+        if log_cat is None:
+          yield pvalue.TaggedOutput('uncategorized', row)
+
+        yield (log_cat, row)
+      except KeyError:
+          yield pvalue.TaggedOutput('uncategorized', row)
+
 
     except:  # pylint: disable=bare-except
       # Log and count parse errors
@@ -92,13 +102,29 @@ def run(argv=None, save_main_session=True):
   options.view_as(SetupOptions).save_main_session = save_main_session
 
   with beam.Pipeline(options=options) as p:
-    (  # pylint: disable=expression-not-assigned
+    logs = (  # pylint: disable=expression-not-assigned
         p
         | 'ReadInputText' >> beam.io.ReadFromText(args.input)
-        | 'ParseLogEntry' >> beam.ParDo(ParseLogEntry())
+        | 'ParseLogEntry' >> beam.ParDo(ParseLogEntry()).with_outputs(
+            'uncategorized',
+            main='logs'
+          )
+    )
+        
+    categorized, _ = logs
+    ( 
+      categorized 
         | 'Group' >> beam.GroupByKey()
         | 'getKeys' >> beam.Keys()
         | 'Write' >> beam.io.WriteToText(args.output)
+    )
+
+    # TODO write these somewhere
+    uncategorized_logs = logs['uncategorized']
+    (
+      uncategorized_logs
+      | 'count uncategorized' >> beam.combiners.Count.Globally()
+      | beam.Map(lambda x: print("Uncategorized logs: %d" % x))
     )
 
 

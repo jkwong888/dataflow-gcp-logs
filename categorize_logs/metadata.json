@@ -1,0 +1,20 @@
+{
+  "name": "Categorize Stackdriver Logs",
+  "description": "An Apache Beam batch pipeline that categorizes logs dumped from Stackdriver",
+  "parameters": [
+    {
+      "name": "input",
+      "label": "Input Bucket Path",
+      "helpText": "Where the logs are stored",
+      "regexes": [
+      ]
+    },
+    {
+      "name": "output",
+      "label": "Output category path",
+      "helpText": "Output Bucket path",
+      "regexes": [
+      ]
+    }
+  ]
+}
