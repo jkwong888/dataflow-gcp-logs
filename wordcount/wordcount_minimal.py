@@ -85,16 +85,22 @@ def main(argv=None, save_main_session=True):
       dest='output',
       # CHANGE 1/6: The Google Cloud Storage path is required
       # for outputting the results.
-      default='gs://jkwng-wordcount-output-a8f6/output/wc-out',
+      default='gs://jkwng-wordcount-output-a8f6/output',
       help='Output file to write results to.')
   known_args, pipeline_args = parser.parse_known_args(argv)
   pipeline_args.extend([
       # CHANGE 2/6: (OPTIONAL) Change this to DataflowRunner to
       # run your pipeline on the Google Cloud Dataflow Service.
+      #'--runner=PortableRunner',
+      """
+      '--job_endpoint=embed',
+      '--environment_type=DOCKER',
+      '--environment_config=gcr.io/jkwng-images/jkwng-beam:2.39.0',
+      """
       '--runner=DataflowRunner',
       # CHANGE 3/6: (OPTIONAL) Your project ID is required in order to
       # run your pipeline on the Google Cloud Dataflow Service.
-      '--project=jkwng-wordcount-output-a8f6',
+      '--project=jkwng-dataflow-dev-a8f6',
       # CHANGE 4/6: (OPTIONAL) The Google Cloud region (e.g. us-central1)
       # is required in order to run your pipeline on the Google Cloud
       # Dataflow Service.
@@ -105,10 +111,11 @@ def main(argv=None, save_main_session=True):
       # CHANGE 6/6: Your Google Cloud Storage path is required for temporary
       # files.
       '--temp_location=gs://jkwng-wordcount-output-a8f6/tmp',
-      '--job_name=wordcount',
+      '--job_name=your-wordcount-job',
+      '--service_account_email=dataflow-sa@jkwng-dataflow-dev-a8f6.iam.gserviceaccount.com',
       '--network=shared-network',
       '--subnetwork=https://www.googleapis.com/compute/v1/projects/jkwng-nonprod-vpc/regions/us-central1/subnetworks/dataflow-dev',
-      '--service_account_email=dataflow-sa@jkwng-dataflow-dev-a8f6.iam.gserviceaccount.com',
+      '--sdk_container_image=gcr.io/jkwng-images/jkwng-beam:2.39.0',
   ])
 
   # We use the save_main_session option because one or more DoFn's in this
