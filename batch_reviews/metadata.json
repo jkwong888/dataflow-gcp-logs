@@ -1,0 +1,52 @@
+{
+    "name": "Batch reviews Python flex template",
+    "description": "Batch reviews python flex template.",
+    "parameters": [
+      {
+        "name": "gcs_input_path",
+        "label": "gcs input path.",
+        "helpText": "Root where parquet files for reviews are located, e.g. gs://bucket/path/to/input",
+        "isOptional": false,
+        "regexes": [
+          "gs://([^/]+).*"
+        ]
+      },
+      {
+        "name": "gcs_temp_location",
+        "label": "gcs temp location.",
+        "helpText": "location where to put temp records before BQ batch load, e.g. gs://bucket/path/to/tmp",
+        "isOptional": false,
+        "regexes": [
+          "gs://([^/]+).*"
+        ]
+      },
+      {
+        "name": "output_table",
+        "label": "BigQuery output table name.",
+        "helpText": "Name of the BigQuery output table name, e.g. PROJECT:DATASET.TABLE",
+        "isOptional": false,
+        "regexes": [
+          "([^:]+:)?[^.]+[.].+"
+        ]
+      },
+      {
+        "name": "date",
+        "label": "date string for processing",
+        "helpText": "Date string for records to process, e.g. 20221105",
+        "isOptional": false,
+        "regexes": [
+          "[0-9]{4}[0-9]{2}[0-9]{2}"
+        ]
+      },
+      {
+        "name": "hour_of_day",
+        "label": "hour of the day to generate the records for",
+        "helpText": "e.g. 18",
+        "isOptional": false,
+        "regexes": [
+          "[0-2][0-9]"
+        ]
+      }
+
+    ]
+  }

@@ -56,3 +56,14 @@ resource "google_project_organization_policy" "vpcPeeringAllow" {
   }
 }
 */
+
+resource "google_project_organization_policy" "allowed_ingress" {
+  project    = module.service_project.project_id
+  constraint = "constraints/cloudfunctions.allowedIngressSettings"
+
+  list_policy {
+    allow {
+      all = true
+    }
+  }
+}
